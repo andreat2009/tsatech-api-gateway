@@ -1,0 +1,67 @@
+server:
+  port: ${SERVER_PORT:8080}
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:false}
+    certificate: ${SERVER_SSL_CERT:/etc/tls/tls.crt}
+    certificate-private-key: ${SERVER_SSL_KEY:/etc/tls/tls.key}
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/catalog}
+  cloud:
+    gateway:
+      httpclient:
+        ssl:
+          trust-store: ${GATEWAY_SSL_TRUSTSTORE:/etc/ssl/openshift/truststore.jks}
+          trust-store-password: ${GATEWAY_SSL_TRUSTSTORE_PASSWORD:changeit}
+          trust-store-type: ${GATEWAY_SSL_TRUSTSTORE_TYPE:JKS}
+      default-filters:
+        - RemoveRequestHeader=Cookie
+      routes:
+        - id: catalog
+          uri: ${CATALOG_SERVICE_URL:https://catalog-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/catalog/**
+        - id: customer
+          uri: ${CUSTOMER_SERVICE_URL:https://customer-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/customers/**
+        - id: cart
+          uri: ${CART_SERVICE_URL:https://cart-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/carts/**
+        - id: order
+          uri: ${ORDER_SERVICE_URL:https://order-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/orders/**
+        - id: inventory
+          uri: ${INVENTORY_SERVICE_URL:https://inventory-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/inventory/**
+        - id: pricing
+          uri: ${PRICING_SERVICE_URL:https://pricing-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/pricing/**
+        - id: payment
+          uri: ${PAYMENT_SERVICE_URL:https://payment-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/payments/**
+        - id: shipping
+          uri: ${SHIPPING_SERVICE_URL:https://shipping-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/shipments/**
+        - id: notification
+          uri: ${NOTIFICATION_SERVICE_URL:https://notification-service-platform.apps-crc.testing}
+          predicates:
+            - Path=/api/notifications/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  labels:
+    app: api-gateway
+    component: gateway
+    project: newproject
+  annotations:
+    description: API Gateway configuration
+
+data:
+  KEYCLOAK_ISSUER_URI: https://keycloak-platform.apps-crc.testing/realms/master
+  GATEWAY_SSL_TRUSTSTORE: /etc/ssl/openshift/truststore.jks
+  GATEWAY_SSL_TRUSTSTORE_PASSWORD: changeit
+  GATEWAY_SSL_TRUSTSTORE_TYPE: JKS
+  SERVER_PORT: "8443"
+  SERVER_SSL_ENABLED: "true"
+  CATALOG_SERVICE_URL: https://catalog-service-platform.apps-crc.testing
+  CUSTOMER_SERVICE_URL: https://customer-service-platform.apps-crc.testing
+  CART_SERVICE_URL: https://cart-service-platform.apps-crc.testing
+  ORDER_SERVICE_URL: https://order-service-platform.apps-crc.testing
+  INVENTORY_SERVICE_URL: https://inventory-service-platform.apps-crc.testing
+  PRICING_SERVICE_URL: https://pricing-service-platform.apps-crc.testing
+  PAYMENT_SERVICE_URL: https://payment-service-platform.apps-crc.testing
+  SHIPPING_SERVICE_URL: https://shipping-service-platform.apps-crc.testing
+  NOTIFICATION_SERVICE_URL: https://notification-service-platform.apps-crc.testing
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: api-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8443
+          envFrom:
+            - configMapRef:
+                name: api-gateway-config
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Djavax.net.ssl.trustStore=/etc/ssl/openshift/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8443
+              scheme: HTTPS
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8443
+              scheme: HTTPS
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: truststore
+              mountPath: /etc/ssl/openshift
+              readOnly: true
+            - name: service-tls
+              mountPath: /etc/tls
+              readOnly: true
+      volumes:
+        - name: truststore
+          secret:
+            secretName: platform-truststore
+        - name: service-tls
+          secret:
+            secretName: api-gateway-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: api-gateway-tls
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - port: 8443
+      targetPort: 8443
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: api-gateway
+spec:
+  host: api-gateway-platform.apps-crc.testing
+  to:
+    kind: Service
+    name: api-gateway
+  port:
+    targetPort: 8443
+  tls:
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
