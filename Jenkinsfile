@@ -1,6 +1,7 @@
 pipeline {
     agent {
         kubernetes {
+            namespace 'ecommerce'
             yaml '''
 apiVersion: v1
 kind: Pod
@@ -13,17 +14,24 @@ spec:
     emptyDir: {}
   - name: m2-repo
     emptyDir: {}
+  - name: platform-truststore
+    secret:
+      secretName: platform-truststore
   containers:
   - name: jnlp
     image: jenkins/inbound-agent:latest
-    args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
     workingDir: /tmp/agent
     env:
     - name: JENKINS_AGENT_WORKDIR
       value: /tmp/agent
+    - name: JENKINS_JAVA_OPTS
+      value: "-Djavax.net.ssl.trustStore=/etc/truststore/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
     volumeMounts:
     - name: jenkins-agent
       mountPath: /tmp/agent
+    - name: platform-truststore
+      mountPath: /etc/truststore
+      readOnly: true
   - name: maven
     image: maven:3.9.9-eclipse-temurin-17
     command: ['cat']
