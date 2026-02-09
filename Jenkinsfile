@@ -55,8 +55,8 @@ spec:
     }
     environment {
         APP_NAME = "api-gateway"
-        HELM_RELEASE = "${HELM_RELEASE:-api-gateway}"
-        CHART_PATH = "${CHART_PATH:-helm}"
+        HELM_RELEASE = "${params.HELM_RELEASE ?: 'api-gateway'}"
+        CHART_PATH = "${params.CHART_PATH ?: 'helm'}"
     }
     stages {
         stage('Checkout') {
