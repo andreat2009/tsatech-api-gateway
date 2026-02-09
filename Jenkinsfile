@@ -30,6 +30,10 @@ spec:
       value: "https://jenkins-platform.apps-crc.testing/"
     - name: JENKINS_WEB_SOCKET
       value: "true"
+    - name: HOME
+      value: /tmp/agent
+    - name: XDG_CONFIG_HOME
+      value: /tmp/agent/.config
     volumeMounts:
     - name: jenkins-agent
       mountPath: /tmp/agent
@@ -43,6 +47,10 @@ spec:
     env:
     - name: MAVEN_CONFIG
       value: /tmp/.m2
+    - name: HOME
+      value: /tmp/agent
+    - name: XDG_CONFIG_HOME
+      value: /tmp/agent/.config
     volumeMounts:
     - name: m2-repo
       mountPath: /tmp/.m2
@@ -50,6 +58,11 @@ spec:
     image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
     command: ['cat']
     tty: true
+    env:
+    - name: HOME
+      value: /tmp/agent
+    - name: XDG_CONFIG_HOME
+      value: /tmp/agent/.config
 '''
         }
     }
