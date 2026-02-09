@@ -8,21 +8,36 @@ metadata:
   labels:
     app: jenkins-agent-maven
 spec:
+  volumes:
+  - name: jenkins-agent
+    emptyDir: {}
+  - name: m2-repo
+    emptyDir: {}
   containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
+    workingDir: /tmp/agent
+    env:
+    - name: JENKINS_AGENT_WORKDIR
+      value: /tmp/agent
+    volumeMounts:
+    - name: jenkins-agent
+      mountPath: /tmp/agent
   - name: maven
     image: maven:3.9.9-eclipse-temurin-17
     command: ['cat']
     tty: true
+    env:
+    - name: MAVEN_CONFIG
+      value: /tmp/.m2
     volumeMounts:
     - name: m2-repo
-      mountPath: /root/.m2
+      mountPath: /tmp/.m2
   - name: oc
-    image: quay.io/openshift/origin-cli:latest
+    image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
     command: ['cat']
     tty: true
-  volumes:
-  - name: m2-repo
-    emptyDir: {}
 """
         }
     }
@@ -75,12 +90,22 @@ spec:
                       OPENSHIFT_PROJECT="${OPENSHIFT_NAMESPACE:-${OPENSHIFT_PROJECT:-ecommerce}}"
                       IMAGE_REPOSITORY="${IMAGE_REPOSITORY:-image-registry.openshift-image-registry.svc:5000/${OPENSHIFT_PROJECT}/${APP_NAME}}"
                       IMAGE_TAG="${IMAGE_TAG:-latest}"
-
                       if ! command -v helm >/dev/null 2>&1; then
-                        curl -sSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz -o /tmp/helm.tgz
+                        ARCH=$(uname -m)
+                        if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+                          HELM_PKG="helm-v3.14.4-linux-arm64.tar.gz"
+                        else
+                          HELM_PKG="helm-v3.14.4-linux-amd64.tar.gz"
+                        fi
+                        curl -sSL "https://get.helm.sh/${HELM_PKG}" -o /tmp/helm.tgz
                         tar -xzf /tmp/helm.tgz -C /tmp
-                        chmod +x /tmp/linux-amd64/helm
-                        export PATH="/tmp/linux-amd64:$PATH"
+                        if [ -d /tmp/linux-arm64 ]; then
+                          chmod +x /tmp/linux-arm64/helm
+                          export PATH="/tmp/linux-arm64:$PATH"
+                        else
+                          chmod +x /tmp/linux-amd64/helm
+                          export PATH="/tmp/linux-amd64:$PATH"
+                        fi
                       fi
 
                       helm lint "${CHART_PATH}"
