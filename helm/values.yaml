@@ -1,0 +1,67 @@
+replicaCount: 2
+
+image:
+  repository: image-registry.openshift-image-registry.svc:5000/ecommerce/api-gateway
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8443
+
+route:
+  enabled: true
+  host: "api-gateway-ecommerce.apps-crc.testing"
+  tls:
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
+  annotations: {}
+
+env:
+  SERVER_PORT: "8443"
+  SERVER_SSL_ENABLED: "true"
+  KEYCLOAK_ISSUER_URI: "https://keycloak-platform.apps-crc.testing/realms/master"
+
+secret:
+  name: "api-gatewaySecret"
+  create: false
+  data: {}
+  # data example:
+  #   DB_HOST: "db"
+  #   DB_PORT: "5432"
+  #   DB_NAME: "api-gateway"
+  #   DB_USER: "api-gateway"
+  #   DB_PASSWORD: "change-me"
+
+tls:
+  enabled: true
+  secretName: "api-gateway-tls"
+
+truststore:
+  enabled: false
+  secretName: "platform-truststore"
+  mountPath: "/etc/ssl/openshift"
+  password: "changeit"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+readinessProbe:
+  path: /actuator/health
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+livenessProbe:
+  path: /actuator/health
+  initialDelaySeconds: 20
+  periodSeconds: 20
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
