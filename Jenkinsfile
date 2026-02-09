@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            yaml """
+            yaml '''
 apiVersion: v1
 kind: Pod
 metadata:
@@ -38,7 +38,7 @@ spec:
     image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
     command: ['cat']
     tty: true
-"""
+'''
         }
     }
     environment {
