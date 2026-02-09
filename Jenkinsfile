@@ -10,7 +10,7 @@ metadata:
     app: jenkins-agent-maven
 spec:
   volumes:
-  - name: jenkins-agent
+  - name: workspace-volume
     emptyDir: {}
   - name: m2-repo
     emptyDir: {}
@@ -35,7 +35,7 @@ spec:
     - name: XDG_CONFIG_HOME
       value: /tmp/agent/.config
     volumeMounts:
-    - name: jenkins-agent
+    - name: workspace-volume
       mountPath: /tmp/agent
     - name: platform-truststore
       mountPath: /etc/truststore
@@ -54,6 +54,8 @@ spec:
     volumeMounts:
     - name: m2-repo
       mountPath: /tmp/.m2
+    - name: workspace-volume
+      mountPath: /tmp/agent
   - name: oc
     image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
     command: ['cat']
@@ -63,6 +65,9 @@ spec:
       value: /tmp/agent
     - name: XDG_CONFIG_HOME
       value: /tmp/agent/.config
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /tmp/agent
 '''
         }
     }
