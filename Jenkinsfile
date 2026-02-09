@@ -88,7 +88,7 @@ spec:
                         --namespace "${OPENSHIFT_PROJECT}" \
                         --set image.repository="${IMAGE_REPOSITORY}" \
                         --set image.tag="${IMAGE_TAG}" \
-                        --set secret.name="${APP_NAME}Secret"
+                        --set secret.name="${APP_NAME}-secret"
                     '''
                 }
             }

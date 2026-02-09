@@ -34,7 +34,7 @@ env:
   NOTIFICATION_SERVICE_URL: "https://notification-service-ecommerce.apps-crc.testing"
 
 secret:
-  name: "api-gatewaySecret"
+  name: "api-gateway-secret"
   create: false
   data: {}
   # data example:

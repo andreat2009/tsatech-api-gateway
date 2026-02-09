@@ -11,5 +11,5 @@
 {{- end -}}
 
 {{- define "app.secretName" -}}
-{{- default (printf "%sSecret" (include "app.name" .)) .Values.secret.name -}}
+{{- default (printf "%s-secret" (include "app.name" .)) .Values.secret.name -}}
 {{- end -}}
