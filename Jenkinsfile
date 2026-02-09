@@ -26,6 +26,10 @@ spec:
       value: /tmp/agent
     - name: JENKINS_JAVA_OPTS
       value: "-Djavax.net.ssl.trustStore=/etc/truststore/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
+    - name: JENKINS_URL
+      value: "https://jenkins-platform.apps-crc.testing/"
+    - name: JENKINS_WEB_SOCKET
+      value: "true"
     volumeMounts:
     - name: jenkins-agent
       mountPath: /tmp/agent
