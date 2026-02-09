@@ -12,7 +12,7 @@ route:
   enabled: true
   host: "api-gateway-ecommerce.apps-crc.testing"
   tls:
-    termination: reencrypt
+    termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
   annotations: {}
 
@@ -20,6 +20,18 @@ env:
   SERVER_PORT: "8443"
   SERVER_SSL_ENABLED: "true"
   KEYCLOAK_ISSUER_URI: "https://keycloak-platform.apps-crc.testing/realms/master"
+  GATEWAY_SSL_TRUSTSTORE: "/etc/ssl/openshift/truststore.jks"
+  GATEWAY_SSL_TRUSTSTORE_PASSWORD: "changeit"
+  GATEWAY_SSL_TRUSTSTORE_TYPE: "JKS"
+  CATALOG_SERVICE_URL: "https://catalog-service-ecommerce.apps-crc.testing"
+  CUSTOMER_SERVICE_URL: "https://customer-service-ecommerce.apps-crc.testing"
+  CART_SERVICE_URL: "https://cart-service-ecommerce.apps-crc.testing"
+  ORDER_SERVICE_URL: "https://order-service-ecommerce.apps-crc.testing"
+  INVENTORY_SERVICE_URL: "https://inventory-service-ecommerce.apps-crc.testing"
+  PRICING_SERVICE_URL: "https://pricing-service-ecommerce.apps-crc.testing"
+  PAYMENT_SERVICE_URL: "https://payment-service-ecommerce.apps-crc.testing"
+  SHIPPING_SERVICE_URL: "https://shipping-service-ecommerce.apps-crc.testing"
+  NOTIFICATION_SERVICE_URL: "https://notification-service-ecommerce.apps-crc.testing"
 
 secret:
   name: "api-gatewaySecret"
@@ -32,12 +44,15 @@ secret:
   #   DB_USER: "api-gateway"
   #   DB_PASSWORD: "change-me"
 
+secretEnv:
+  {}
+
 tls:
   enabled: true
-  secretName: "api-gateway-tls"
+  secretName: "wildcard-apps-tls"
 
 truststore:
-  enabled: false
+  enabled: true
   secretName: "platform-truststore"
   mountPath: "/etc/ssl/openshift"
   password: "changeit"

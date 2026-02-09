@@ -18,5 +18,7 @@ spec:
     targetPort: {{ .Values.service.port }}
   tls:
     termination: {{ .Values.route.tls.termination }}
+{{- if ne .Values.route.tls.termination "passthrough" }}
     insecureEdgeTerminationPolicy: {{ .Values.route.tls.insecureEdgeTerminationPolicy }}
+{{- end }}
 {{- end }}

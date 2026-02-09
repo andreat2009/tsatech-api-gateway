@@ -16,7 +16,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/catalog}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://keycloak-platform.apps-crc.testing/realms/master}
   cloud:
     gateway:
       httpclient:
@@ -28,39 +28,39 @@ spring:
         - RemoveRequestHeader=Cookie
       routes:
         - id: catalog
-          uri: ${CATALOG_SERVICE_URL:https://catalog-service-platform.apps-crc.testing}
+          uri: ${CATALOG_SERVICE_URL:https://catalog-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/catalog/**
         - id: customer
-          uri: ${CUSTOMER_SERVICE_URL:https://customer-service-platform.apps-crc.testing}
+          uri: ${CUSTOMER_SERVICE_URL:https://customer-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/customers/**
         - id: cart
-          uri: ${CART_SERVICE_URL:https://cart-service-platform.apps-crc.testing}
+          uri: ${CART_SERVICE_URL:https://cart-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/carts/**
         - id: order
-          uri: ${ORDER_SERVICE_URL:https://order-service-platform.apps-crc.testing}
+          uri: ${ORDER_SERVICE_URL:https://order-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/orders/**
         - id: inventory
-          uri: ${INVENTORY_SERVICE_URL:https://inventory-service-platform.apps-crc.testing}
+          uri: ${INVENTORY_SERVICE_URL:https://inventory-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/inventory/**
         - id: pricing
-          uri: ${PRICING_SERVICE_URL:https://pricing-service-platform.apps-crc.testing}
+          uri: ${PRICING_SERVICE_URL:https://pricing-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/pricing/**
         - id: payment
-          uri: ${PAYMENT_SERVICE_URL:https://payment-service-platform.apps-crc.testing}
+          uri: ${PAYMENT_SERVICE_URL:https://payment-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/payments/**
         - id: shipping
-          uri: ${SHIPPING_SERVICE_URL:https://shipping-service-platform.apps-crc.testing}
+          uri: ${SHIPPING_SERVICE_URL:https://shipping-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/shipments/**
         - id: notification
-          uri: ${NOTIFICATION_SERVICE_URL:https://notification-service-platform.apps-crc.testing}
+          uri: ${NOTIFICATION_SERVICE_URL:https://notification-service-ecommerce.apps-crc.testing}
           predicates:
             - Path=/api/notifications/**
 

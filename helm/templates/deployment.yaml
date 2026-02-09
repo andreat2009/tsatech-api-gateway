@@ -49,6 +49,16 @@ spec:
                 secretKeyRef:
                   name: {{ include "app.secretName" . }}
                   key: DB_PASSWORD
+
+{{- if .Values.secretEnv }}
+{{- range $key, $value := .Values.secretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "app.secretName" . }}
+                  key: {{ default $key $value }}
+{{- end }}
+{{- end }}
 {{- if .Values.truststore.enabled }}
             - name: JAVA_TOOL_OPTIONS
               value: "-Djavax.net.ssl.trustStore={{ .Values.truststore.mountPath }}/truststore.jks -Djavax.net.ssl.trustStorePassword={{ .Values.truststore.password }}"
