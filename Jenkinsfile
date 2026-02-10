@@ -107,6 +107,8 @@ spec:
                       set -euo pipefail
                       OPENSHIFT_PROJECT="${OPENSHIFT_NAMESPACE:-${OPENSHIFT_PROJECT:-ecommerce}}"
                       oc new-build --name="${APP_NAME}" --binary --strategy=docker >/dev/null 2>&1 || true
+                      # Keep build history small to reduce disk usage on CRC
+                      oc patch bc/${APP_NAME} --type=merge -p '{"spec":{"successfulBuildsHistoryLimit":2,"failedBuildsHistoryLimit":2}}' >/dev/null 2>&1 || true
                       oc start-build "${APP_NAME}" --from-dir=. --follow
                     '''
                 }
@@ -120,6 +122,11 @@ spec:
                       OPENSHIFT_PROJECT="${OPENSHIFT_NAMESPACE:-${OPENSHIFT_PROJECT:-ecommerce}}"
                       IMAGE_REPOSITORY="${IMAGE_REPOSITORY:-image-registry.openshift-image-registry.svc:5000/${OPENSHIFT_PROJECT}/${APP_NAME}}"
                       IMAGE_TAG="${IMAGE_TAG:-latest}"
+                      IMAGE_REF=$(oc -n "$OPENSHIFT_PROJECT" get istag "${APP_NAME}:latest" -o jsonpath='{.image.dockerImageReference}' 2>/dev/null || true)
+                      IMAGE_DIGEST=""
+                      if [ -n "$IMAGE_REF" ] && echo "$IMAGE_REF" | grep -q "@sha256:"; then
+                        IMAGE_DIGEST="${IMAGE_REF##*@}"
+                      fi
                       if ! command -v helm >/dev/null 2>&1; then
                         ARCH=$(uname -m)
                         if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
@@ -143,6 +150,9 @@ spec:
                         --namespace "${OPENSHIFT_PROJECT}" \
                         --set image.repository="${IMAGE_REPOSITORY}" \
                         --set image.tag="${IMAGE_TAG}" \
+                        --set image.digest="${IMAGE_DIGEST}" \
+                        --set replicaCount=1 \
+                        --set truststore.enabled=true \
                         --set secret.name="${APP_NAME}-secret"
                     '''
                 }

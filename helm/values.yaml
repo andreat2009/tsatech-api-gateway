@@ -1,8 +1,8 @@
-replicaCount: 2
-
+replicaCount: 1
 image:
   repository: image-registry.openshift-image-registry.svc:5000/ecommerce/api-gateway
   tag: "latest"
+  digest: ""
   pullPolicy: IfNotPresent
 
 service:
