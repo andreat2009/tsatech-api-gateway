@@ -68,7 +68,7 @@ spec:
 {{- end }}
 {{- if not (hasKey .Values.env "SPRING_FLYWAY_TABLE") }}
             - name: SPRING_FLYWAY_TABLE
-              value: "flyway_{{ include \"app.name\" . | replace \"-\" \"_\" }}"
+              value: 'flyway_{{ include "app.name" . | replace "-" "_" }}'
 {{- end }}
 
 {{- if .Values.secretEnv }}
