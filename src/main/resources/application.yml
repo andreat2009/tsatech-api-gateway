@@ -27,6 +27,23 @@ spring:
       default-filters:
         - RemoveRequestHeader=Cookie
       routes:
+
+        - id: review
+          uri: ${REVIEW_SERVICE_URL:https://review-service-ecommerce.apps-crc.testing}
+          predicates:
+            - Path=/api/catalog/reviews,/api/catalog/reviews/**,/api/catalog/products/*/reviews
+        - id: wishlist
+          uri: ${WISHLIST_SERVICE_URL:https://wishlist-service-ecommerce.apps-crc.testing}
+          predicates:
+            - Path=/api/customers/*/wishlist,/api/customers/*/wishlist/**
+        - id: returns
+          uri: ${RETURNS_SERVICE_URL:https://returns-service-ecommerce.apps-crc.testing}
+          predicates:
+            - Path=/api/orders/returns,/api/orders/returns/**
+        - id: coupon
+          uri: ${COUPON_SERVICE_URL:https://coupon-service-ecommerce.apps-crc.testing}
+          predicates:
+            - Path=/api/pricing/quote,/api/pricing/coupons,/api/pricing/coupons/**
         - id: catalog
           uri: ${CATALOG_SERVICE_URL:https://catalog-service-ecommerce.apps-crc.testing}
           predicates:

@@ -28,6 +28,8 @@ public class SecurityConfig {
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
             .authorizeExchange(exchange -> exchange
                 .pathMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/catalog/reviews/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST, "/api/catalog/products/*/reviews").hasAnyRole("ADMIN", "USER")
                 .pathMatchers(HttpMethod.GET, "/api/catalog/**").permitAll()
                 .pathMatchers("/api/catalog/**").hasRole("ADMIN")
                 .pathMatchers("/api/payments/**").hasRole("ADMIN")

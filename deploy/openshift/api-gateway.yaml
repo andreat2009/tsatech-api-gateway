@@ -16,11 +16,15 @@ data:
   GATEWAY_SSL_TRUSTSTORE_TYPE: JKS
   SERVER_PORT: "8443"
   SERVER_SSL_ENABLED: "true"
+  REVIEW_SERVICE_URL: https://review-service-platform.apps-crc.testing
   CATALOG_SERVICE_URL: https://catalog-service-platform.apps-crc.testing
+  WISHLIST_SERVICE_URL: https://wishlist-service-platform.apps-crc.testing
   CUSTOMER_SERVICE_URL: https://customer-service-platform.apps-crc.testing
   CART_SERVICE_URL: https://cart-service-platform.apps-crc.testing
+  RETURNS_SERVICE_URL: https://returns-service-platform.apps-crc.testing
   ORDER_SERVICE_URL: https://order-service-platform.apps-crc.testing
   INVENTORY_SERVICE_URL: https://inventory-service-platform.apps-crc.testing
+  COUPON_SERVICE_URL: https://coupon-service-platform.apps-crc.testing
   PRICING_SERVICE_URL: https://pricing-service-platform.apps-crc.testing
   PAYMENT_SERVICE_URL: https://payment-service-platform.apps-crc.testing
   SHIPPING_SERVICE_URL: https://shipping-service-platform.apps-crc.testing
