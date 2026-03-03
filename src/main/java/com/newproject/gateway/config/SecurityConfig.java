@@ -29,14 +29,13 @@ public class SecurityConfig {
             .authorizeExchange(exchange -> exchange
                 .pathMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll()
                 .pathMatchers(HttpMethod.GET, "/api/catalog/reviews/**").hasRole("ADMIN")
-                .pathMatchers(HttpMethod.POST, "/api/catalog/products/*/reviews").hasAnyRole("ADMIN", "USER")
+                .pathMatchers(HttpMethod.POST, "/api/catalog/products/*/reviews").authenticated()
                 .pathMatchers(HttpMethod.GET, "/api/catalog/**").permitAll()
                 .pathMatchers("/api/catalog/**").hasRole("ADMIN")
-                .pathMatchers("/api/payments/**").hasRole("ADMIN")
-                .pathMatchers("/api/shipments/**").hasRole("ADMIN")
-                .pathMatchers("/api/**").hasAnyRole("ADMIN", "USER")
+                .pathMatchers("/api/**").authenticated()
                 .anyExchange().authenticated()
             )
+
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
             )
