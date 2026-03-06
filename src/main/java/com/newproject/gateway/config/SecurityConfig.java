@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +15,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -28,14 +26,41 @@ public class SecurityConfig {
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
             .authorizeExchange(exchange -> exchange
                 .pathMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll()
+
+                // catalog/reviews
                 .pathMatchers(HttpMethod.GET, "/api/catalog/reviews/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/api/catalog/products/*/reviews").authenticated()
                 .pathMatchers(HttpMethod.GET, "/api/catalog/**").permitAll()
                 .pathMatchers("/api/catalog/**").hasRole("ADMIN")
+
+                // CMS / BLOG / CONTACT public endpoints
+                .pathMatchers(HttpMethod.GET, "/api/cms/information/**").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/cms/blog/posts/**").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/cms/blog/posts/*/comments").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/cms/contact").permitAll()
+
+                // CMS / BLOG / CONTACT admin endpoints
+                .pathMatchers(HttpMethod.POST, "/api/cms/information", "/api/cms/information/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PUT, "/api/cms/information/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.DELETE, "/api/cms/information/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST, "/api/cms/blog/posts", "/api/cms/blog/posts/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PUT, "/api/cms/blog/posts/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.DELETE, "/api/cms/blog/posts/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/cms/blog/comments", "/api/cms/blog/comments/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PATCH, "/api/cms/blog/comments/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/cms/contact", "/api/cms/contact/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PATCH, "/api/cms/contact/**").hasRole("ADMIN")
+
+                // customer extras (dedicated microservices)
+                .pathMatchers("/api/customers/*/newsletter", "/api/customers/*/newsletter/**").authenticated()
+                .pathMatchers("/api/customers/*/rewards", "/api/customers/*/rewards/**").authenticated()
+                .pathMatchers("/api/customers/*/transactions", "/api/customers/*/transactions/**").authenticated()
+                .pathMatchers("/api/customers/*/subscriptions", "/api/customers/*/subscriptions/**").authenticated()
+                .pathMatchers("/api/customers/*/downloads", "/api/customers/*/downloads/**").authenticated()
+
                 .pathMatchers("/api/**").authenticated()
                 .anyExchange().authenticated()
             )
-
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
             )
