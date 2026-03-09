@@ -51,6 +51,15 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.GET, "/api/cms/contact", "/api/cms/contact/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PATCH, "/api/cms/contact/**").hasRole("ADMIN")
 
+                // guest checkout public flow
+                .pathMatchers(HttpMethod.POST, "/api/customers").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/customers/*/addresses").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/pricing/quote").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/orders/*/items").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/payments").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/shipments").permitAll()
+
                 // customer extras (dedicated microservices)
                 .pathMatchers("/api/customers/*/newsletter", "/api/customers/*/newsletter/**").authenticated()
                 .pathMatchers("/api/customers/*/rewards", "/api/customers/*/rewards/**").authenticated()
