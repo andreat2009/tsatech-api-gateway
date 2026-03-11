@@ -35,6 +35,7 @@ public class SecurityConfig {
 
                 // CMS / BLOG / CONTACT public endpoints
                 .pathMatchers(HttpMethod.GET, "/api/cms/information/**").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/cms/settings/public").permitAll()
                 .pathMatchers(HttpMethod.GET, "/api/cms/blog/posts/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/cms/blog/posts/*/comments").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/cms/contact").permitAll()
@@ -43,6 +44,8 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.POST, "/api/cms/information", "/api/cms/information/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/api/cms/information/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/api/cms/information/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/cms/settings", "/api/cms/settings/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PUT, "/api/cms/settings", "/api/cms/settings/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/api/cms/blog/posts", "/api/cms/blog/posts/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/api/cms/blog/posts/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/api/cms/blog/posts/**").hasRole("ADMIN")
