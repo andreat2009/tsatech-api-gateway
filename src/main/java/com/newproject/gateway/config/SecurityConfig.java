@@ -57,8 +57,12 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.POST, "/api/pricing/quote").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/orders/*/items").permitAll()
+                .pathMatchers(HttpMethod.PUT, "/api/orders/*").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/payments").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/shipments").permitAll()
+
+                .pathMatchers(HttpMethod.POST, "/api/notifications/order-confirmation").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/notifications/ping").permitAll()
 
                 // customer extras (dedicated microservices)
                 .pathMatchers("/api/customers/*/newsletter", "/api/customers/*/newsletter/**").authenticated()
