@@ -106,10 +106,36 @@ spec:
                     sh '''
                       set -euo pipefail
                       OPENSHIFT_PROJECT="${OPENSHIFT_NAMESPACE:-${OPENSHIFT_PROJECT:-ecommerce}}"
-                      oc new-build --name="${APP_NAME}" --binary --strategy=docker >/dev/null 2>&1 || true
+                      BUILD_RETRY_ATTEMPTS="${BUILD_RETRY_ATTEMPTS:-2}"
+                      BUILD_RETRY_SLEEP_SECONDS="${BUILD_RETRY_SLEEP_SECONDS:-25}"
+                      oc -n "$OPENSHIFT_PROJECT" new-build --name="${APP_NAME}" --binary --strategy=docker >/dev/null 2>&1 || true
                       # Keep build history small to reduce disk usage on CRC
-                      oc patch bc/${APP_NAME} --type=merge -p '{"spec":{"successfulBuildsHistoryLimit":2,"failedBuildsHistoryLimit":2}}' >/dev/null 2>&1 || true
-                      oc start-build "${APP_NAME}" --from-dir=. --follow
+                      oc -n "$OPENSHIFT_PROJECT" patch bc/${APP_NAME} --type=merge -p '{"spec":{"successfulBuildsHistoryLimit":2,"failedBuildsHistoryLimit":2}}' >/dev/null 2>&1 || true
+
+                      build_ok=0
+                      for attempt in $(seq 1 "$BUILD_RETRY_ATTEMPTS"); do
+                        echo "OpenShift build attempt ${attempt}/${BUILD_RETRY_ATTEMPTS} for ${APP_NAME}"
+                        if oc -n "$OPENSHIFT_PROJECT" start-build "${APP_NAME}" --from-dir=. --follow; then
+                          build_ok=1
+                          break
+                        fi
+
+                        latest_build=$(oc -n "$OPENSHIFT_PROJECT" get builds -l buildconfig="${APP_NAME}" --sort-by=.metadata.creationTimestamp --no-headers 2>/dev/null | tail -n1 | awk '{print $1}')
+                        if [ -n "${latest_build:-}" ]; then
+                          echo "Last build log tail for ${latest_build}:"
+                          oc -n "$OPENSHIFT_PROJECT" logs "build/${latest_build}" | tail -n 80 || true
+                        fi
+
+                        if [ "$attempt" -lt "$BUILD_RETRY_ATTEMPTS" ]; then
+                          echo "Build failed. Sleeping ${BUILD_RETRY_SLEEP_SECONDS}s before retry..."
+                          sleep "$BUILD_RETRY_SLEEP_SECONDS"
+                        fi
+                      done
+
+                      if [ "$build_ok" -ne 1 ]; then
+                        echo "Build failed after ${BUILD_RETRY_ATTEMPTS} attempts"
+                        exit 41
+                      fi
                     '''
                 }
             }
@@ -164,7 +190,31 @@ spec:
                     sh '''
                       set -euo pipefail
                       OPENSHIFT_PROJECT="${OPENSHIFT_NAMESPACE:-${OPENSHIFT_PROJECT:-ecommerce}}"
-                      oc rollout status deployment/${APP_NAME} --timeout=240s
+                      ROLLOUT_TIMEOUT_SECONDS="${ROLLOUT_TIMEOUT_SECONDS:-420}"
+                      ROLLOUT_RETRY_SLEEP_SECONDS="${ROLLOUT_RETRY_SLEEP_SECONDS:-15}"
+
+                      if ! oc -n "$OPENSHIFT_PROJECT" rollout status deployment/${APP_NAME} --timeout="${ROLLOUT_TIMEOUT_SECONDS}s"; then
+                        echo "First rollout attempt failed for ${APP_NAME}. Collecting diagnostics..."
+                        DEPLOY_SELECTOR=$(oc -n "$OPENSHIFT_PROJECT" get deployment "${APP_NAME}" -o go-template='{{range $k,$v := .spec.selector.matchLabels}}{{printf "%s=%s," $k $v}}{{end}}' | sed 's/,$//' || true)
+                        if [ -z "$DEPLOY_SELECTOR" ]; then
+                          DEPLOY_SELECTOR="app=${APP_NAME}"
+                        fi
+                        oc -n "$OPENSHIFT_PROJECT" get pods -l "$DEPLOY_SELECTOR" -o wide || true
+                        oc -n "$OPENSHIFT_PROJECT" get rs -l "$DEPLOY_SELECTOR" || true
+
+                        FAILED_PODS=$(oc -n "$OPENSHIFT_PROJECT" get pods -l "$DEPLOY_SELECTOR" --no-headers 2>/dev/null | awk '$3 ~ /(Error|Evicted|Unknown|ContainerStatusUnknown|Init:ContainerStatusUnknown|ImagePullBackOff|CrashLoopBackOff)/ {print $1}')
+                        if [ -n "${FAILED_PODS:-}" ]; then
+                          echo "Deleting failed pods blocking rollout:"
+                          echo "$FAILED_PODS"
+                          for pod in $FAILED_PODS; do
+                            oc -n "$OPENSHIFT_PROJECT" delete pod "$pod" --wait=false || true
+                          done
+                          sleep "$ROLLOUT_RETRY_SLEEP_SECONDS"
+                        fi
+
+                        oc -n "$OPENSHIFT_PROJECT" rollout status deployment/${APP_NAME} --timeout="${ROLLOUT_TIMEOUT_SECONDS}s"
+                      fi
+
                       ROUTE_HOST=$(oc -n "$OPENSHIFT_PROJECT" get route "${APP_NAME}" -o jsonpath='{.spec.host}' || true)
                       if [ -n "$ROUTE_HOST" ] && command -v curl >/dev/null 2>&1; then
                         smoke_ok=0
