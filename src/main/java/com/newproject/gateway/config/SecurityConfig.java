@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.GET, "/api/cms/blog/posts/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/cms/blog/posts/*/comments").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/cms/contact").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/cms/analytics/events").permitAll()
 
                 // CMS / BLOG / CONTACT admin endpoints
                 .pathMatchers(HttpMethod.POST, "/api/cms/information", "/api/cms/information/**").hasRole("ADMIN")
@@ -53,6 +54,7 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.PATCH, "/api/cms/blog/comments/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.GET, "/api/cms/contact", "/api/cms/contact/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PATCH, "/api/cms/contact/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/cms/analytics", "/api/cms/analytics/**").hasRole("ADMIN")
 
                 // guest checkout public flow
                 .pathMatchers(HttpMethod.POST, "/api/customers").permitAll()

@@ -76,7 +76,7 @@ spring:
         - id: cms
           uri: ${CMS_SERVICE_URL:https://cms-service-ecommerce.apps-crc.testing}
           predicates:
-            - Path=/api/cms/information,/api/cms/information/**,/api/cms/settings,/api/cms/settings/**
+            - Path=/api/cms/information,/api/cms/information/**,/api/cms/settings,/api/cms/settings/**,/api/cms/analytics,/api/cms/analytics/**
 
         - id: blog
           uri: ${BLOG_SERVICE_URL:https://blog-service-ecommerce.apps-crc.testing}
