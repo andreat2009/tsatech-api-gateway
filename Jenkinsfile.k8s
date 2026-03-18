@@ -1,0 +1,124 @@
+pipeline {
+    agent {
+        kubernetes {
+            defaultContainer 'maven'
+            yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: jenkins-k8s-builder
+spec:
+  restartPolicy: Never
+  serviceAccountName: jenkins
+  containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
+  - name: maven
+    image: maven:3.9.9-eclipse-temurin-17
+    command: ['cat']
+    tty: true
+  - name: kubectl
+    image: registry.k8s.io/kubectl:v1.32.2
+    command: ['cat']
+    tty: true
+  - name: helm
+    image: alpine/helm:3.17.1
+    command: ['cat']
+    tty: true
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:v1.23.2-debug
+    command: ['sh', '-c', 'cat']
+    tty: true
+'''
+        }
+    }
+    environment {
+        APP_NAME = 'api-gateway'
+        HELM_RELEASE = "${params.HELM_RELEASE ?: 'api-gateway'}"
+        CHART_PATH = "${params.CHART_PATH ?: 'helm'}"
+        K8S_NAMESPACE = "${params.K8S_NAMESPACE ?: 'ecommerce'}"
+        PLATFORM_NAMESPACE = "${params.PLATFORM_NAMESPACE ?: 'platform'}"
+        IMAGE_REPOSITORY = "${params.IMAGE_REPOSITORY ?: 'ghcr.io/andreat2009/tsatech-api-gateway'}"
+        IMAGE_TAG = "${params.IMAGE_TAG ?: 'latest'}"
+        IMAGE_PULL_POLICY = "${params.IMAGE_PULL_POLICY ?: 'Always'}"
+        DOMAIN = "${params.DOMAIN ?: 'apps.local'}"
+        REGISTRY_CREDENTIALS_ID = "${params.REGISTRY_CREDENTIALS_ID ?: ''}"
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build Maven') {
+            steps {
+                container('maven') {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+        stage('Build & Push Image') {
+            steps {
+                container('kaniko') {
+                    script {
+                        if (env.REGISTRY_CREDENTIALS_ID?.trim()) {
+                            withCredentials([usernamePassword(credentialsId: env.REGISTRY_CREDENTIALS_ID, usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASS')]) {
+                                sh '''#!/bin/sh
+set -eu
+mkdir -p /kaniko/.docker
+AUTH=$(printf '%s:%s' "$REGISTRY_USER" "$REGISTRY_PASS" | base64 | tr -d '\n')
+cat > /kaniko/.docker/config.json <<JSON
+{"auths":{"ghcr.io":{"auth":"$AUTH"}}}
+JSON
+'''
+                            }
+                        }
+                        sh '''#!/bin/sh
+set -eu
+/kaniko/executor --context "$PWD" --dockerfile Dockerfile.k8s --destination "${IMAGE_REPOSITORY}:${IMAGE_TAG}" --snapshot-mode=redo --use-new-run
+'''
+                    }
+                }
+            }
+        }
+        stage('Helm Deploy') {
+            steps {
+                container('helm') {
+                    sh '''#!/bin/sh
+set -eu
+helm lint "${CHART_PATH}" -f "${CHART_PATH}/values-k8s.yaml"
+helm upgrade --install "${HELM_RELEASE}" "${CHART_PATH}" \
+  -n "${K8S_NAMESPACE}" \
+  --create-namespace \
+  -f "${CHART_PATH}/values-k8s.yaml" \
+  --set-string image.repository="${IMAGE_REPOSITORY}" \
+  --set-string image.tag="${IMAGE_TAG}" \
+  --set-string image.pullPolicy="${IMAGE_PULL_POLICY}" \
+  --set-string ingress.host="${APP_NAME}-${K8S_NAMESPACE}.${DOMAIN}" \
+  --set-string env.KEYCLOAK_ISSUER_URI="http://keycloak.${PLATFORM_NAMESPACE}.svc.cluster.local/realms/master" \
+  --set-string env.REVIEW_SERVICE_URL="http://review-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.CATALOG_SERVICE_URL="http://catalog-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.WISHLIST_SERVICE_URL="http://wishlist-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.CUSTOMER_SERVICE_URL="http://customer-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.CART_SERVICE_URL="http://cart-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.RETURNS_SERVICE_URL="http://returns-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.ORDER_SERVICE_URL="http://order-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.INVENTORY_SERVICE_URL="http://inventory-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.COUPON_SERVICE_URL="http://coupon-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.PRICING_SERVICE_URL="http://pricing-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.PAYMENT_SERVICE_URL="http://payment-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.SHIPPING_SERVICE_URL="http://shipping-service.${K8S_NAMESPACE}.svc.cluster.local:8443" \
+  --set-string env.NOTIFICATION_SERVICE_URL="http://notification-service.${K8S_NAMESPACE}.svc.cluster.local:8443"
+'''
+                }
+            }
+        }
+        stage('Rollout') {
+            steps {
+                container('kubectl') {
+                    sh 'kubectl -n "${K8S_NAMESPACE}" rollout status deployment/${APP_NAME} --timeout=15m'
+                }
+            }
+        }
+    }
+}

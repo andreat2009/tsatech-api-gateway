@@ -1,0 +1,72 @@
+image:
+  repository: ghcr.io/andreat2009/tsatech-api-gateway
+  tag: latest
+  digest: ""
+  pullPolicy: Always
+
+route:
+  enabled: false
+  host: ""
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api-gateway-ecommerce.apps.local
+  path: /
+  pathType: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  tls:
+    enabled: true
+    secretName: wildcard-apps-tls
+
+env:
+  SERVER_PORT: "8443"
+  SERVER_SSL_ENABLED: "false"
+  KEYCLOAK_ISSUER_URI: "http://keycloak.platform.svc.cluster.local/realms/master"
+  REVIEW_SERVICE_URL: "http://review-service.ecommerce.svc.cluster.local:8443"
+  CATALOG_SERVICE_URL: "http://catalog-service.ecommerce.svc.cluster.local:8443"
+  WISHLIST_SERVICE_URL: "http://wishlist-service.ecommerce.svc.cluster.local:8443"
+  CUSTOMER_SERVICE_URL: "http://customer-service.ecommerce.svc.cluster.local:8443"
+  CART_SERVICE_URL: "http://cart-service.ecommerce.svc.cluster.local:8443"
+  RETURNS_SERVICE_URL: "http://returns-service.ecommerce.svc.cluster.local:8443"
+  ORDER_SERVICE_URL: "http://order-service.ecommerce.svc.cluster.local:8443"
+  INVENTORY_SERVICE_URL: "http://inventory-service.ecommerce.svc.cluster.local:8443"
+  COUPON_SERVICE_URL: "http://coupon-service.ecommerce.svc.cluster.local:8443"
+  PRICING_SERVICE_URL: "http://pricing-service.ecommerce.svc.cluster.local:8443"
+  PAYMENT_SERVICE_URL: "http://payment-service.ecommerce.svc.cluster.local:8443"
+  SHIPPING_SERVICE_URL: "http://shipping-service.ecommerce.svc.cluster.local:8443"
+  NOTIFICATION_SERVICE_URL: "http://notification-service.ecommerce.svc.cluster.local:8443"
+
+secret:
+  name: api-gateway-secret
+  create: false
+  data: {}
+
+secretEnv: {}
+
+tls:
+  enabled: false
+  secretName: wildcard-apps-tls
+
+truststore:
+  enabled: false
+  secretName: platform-truststore
+  mountPath: /etc/ssl/openshift
+  password: changeit
+
+readinessProbe:
+  scheme: HTTP
+  path: /actuator/health
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+livenessProbe:
+  scheme: HTTP
+  path: /actuator/health
+  initialDelaySeconds: 20
+  periodSeconds: 20
