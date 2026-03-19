@@ -27,7 +27,8 @@ ingress:
 env:
   SERVER_PORT: "8443"
   SERVER_SSL_ENABLED: "false"
-  KEYCLOAK_ISSUER_URI: "http://keycloak.platform.svc.cluster.local/realms/master"
+  KEYCLOAK_ISSUER_URI: "https://keycloak-platform.apps.local/realms/master"
+  KEYCLOAK_JWK_SET_URI: "http://keycloak.platform.svc.cluster.local/realms/master/protocol/openid-connect/certs"
   REVIEW_SERVICE_URL: "http://review-service.ecommerce.svc.cluster.local:8443"
   CATALOG_SERVICE_URL: "http://catalog-service.ecommerce.svc.cluster.local:8443"
   WISHLIST_SERVICE_URL: "http://wishlist-service.ecommerce.svc.cluster.local:8443"
