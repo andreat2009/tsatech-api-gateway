@@ -16,8 +16,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://keycloak-platform.apps-crc.testing/realms/master}
-          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:https://keycloak-platform.apps-crc.testing/realms/master/protocol/openid-connect/certs}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://keycloak-platform.${APP_BASE_DOMAIN:apps.example.invalid}/realms/master}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak.${PLATFORM_NAMESPACE:platform}.svc.cluster.local/realms/master/protocol/openid-connect/certs}
   cloud:
     gateway:
       httpclient:
@@ -30,107 +30,107 @@ spring:
       routes:
 
         - id: review
-          uri: ${REVIEW_SERVICE_URL:https://review-service-ecommerce.apps-crc.testing}
+          uri: ${REVIEW_SERVICE_URL:http://review-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/catalog/reviews,/api/catalog/reviews/**,/api/catalog/products/*/reviews
 
         - id: wishlist
-          uri: ${WISHLIST_SERVICE_URL:https://wishlist-service-ecommerce.apps-crc.testing}
+          uri: ${WISHLIST_SERVICE_URL:http://wishlist-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/customers/*/wishlist,/api/customers/*/wishlist/**
 
         - id: returns
-          uri: ${RETURNS_SERVICE_URL:https://returns-service-ecommerce.apps-crc.testing}
+          uri: ${RETURNS_SERVICE_URL:http://returns-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/orders/returns,/api/orders/returns/**
 
         - id: coupon
-          uri: ${COUPON_SERVICE_URL:https://coupon-service-ecommerce.apps-crc.testing}
+          uri: ${COUPON_SERVICE_URL:http://coupon-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/pricing/quote,/api/pricing/coupons,/api/pricing/coupons/**
 
         - id: newsletter
-          uri: ${NEWSLETTER_SERVICE_URL:https://newsletter-service-ecommerce.apps-crc.testing}
+          uri: ${NEWSLETTER_SERVICE_URL:http://newsletter-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/customers/*/newsletter,/api/customers/*/newsletter/**
 
         - id: reward
-          uri: ${REWARD_SERVICE_URL:https://reward-service-ecommerce.apps-crc.testing}
+          uri: ${REWARD_SERVICE_URL:http://reward-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/customers/*/rewards,/api/customers/*/rewards/**
 
         - id: transaction
-          uri: ${TRANSACTION_SERVICE_URL:https://transaction-service-ecommerce.apps-crc.testing}
+          uri: ${TRANSACTION_SERVICE_URL:http://transaction-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/customers/*/transactions,/api/customers/*/transactions/**
 
         - id: subscription
-          uri: ${SUBSCRIPTION_SERVICE_URL:https://subscription-service-ecommerce.apps-crc.testing}
+          uri: ${SUBSCRIPTION_SERVICE_URL:http://subscription-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/customers/*/subscriptions,/api/customers/*/subscriptions/**
 
         - id: download
-          uri: ${DOWNLOAD_SERVICE_URL:https://download-service-ecommerce.apps-crc.testing}
+          uri: ${DOWNLOAD_SERVICE_URL:http://download-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/customers/*/downloads,/api/customers/*/downloads/**
 
         - id: cms
-          uri: ${CMS_SERVICE_URL:https://cms-service-ecommerce.apps-crc.testing}
+          uri: ${CMS_SERVICE_URL:http://cms-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/cms/information,/api/cms/information/**,/api/cms/settings,/api/cms/settings/**,/api/cms/analytics,/api/cms/analytics/**
 
         - id: blog
-          uri: ${BLOG_SERVICE_URL:https://blog-service-ecommerce.apps-crc.testing}
+          uri: ${BLOG_SERVICE_URL:http://blog-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/cms/blog,/api/cms/blog/**
 
         - id: contact
-          uri: ${CONTACT_SERVICE_URL:https://contact-service-ecommerce.apps-crc.testing}
+          uri: ${CONTACT_SERVICE_URL:http://contact-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/cms/contact,/api/cms/contact/**
 
         - id: catalog
-          uri: ${CATALOG_SERVICE_URL:https://catalog-service-ecommerce.apps-crc.testing}
+          uri: ${CATALOG_SERVICE_URL:http://catalog-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/catalog/**
 
         - id: customer
-          uri: ${CUSTOMER_SERVICE_URL:https://customer-service-ecommerce.apps-crc.testing}
+          uri: ${CUSTOMER_SERVICE_URL:http://customer-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/customers/**
 
         - id: cart
-          uri: ${CART_SERVICE_URL:https://cart-service-ecommerce.apps-crc.testing}
+          uri: ${CART_SERVICE_URL:http://cart-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/carts/**
 
         - id: order
-          uri: ${ORDER_SERVICE_URL:https://order-service-ecommerce.apps-crc.testing}
+          uri: ${ORDER_SERVICE_URL:http://order-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/orders/**
 
         - id: inventory
-          uri: ${INVENTORY_SERVICE_URL:https://inventory-service-ecommerce.apps-crc.testing}
+          uri: ${INVENTORY_SERVICE_URL:http://inventory-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/inventory/**
 
         - id: pricing
-          uri: ${PRICING_SERVICE_URL:https://pricing-service-ecommerce.apps-crc.testing}
+          uri: ${PRICING_SERVICE_URL:http://pricing-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/pricing/**
 
         - id: payment
-          uri: ${PAYMENT_SERVICE_URL:https://payment-service-ecommerce.apps-crc.testing}
+          uri: ${PAYMENT_SERVICE_URL:http://payment-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/payments/**
 
         - id: shipping
-          uri: ${SHIPPING_SERVICE_URL:https://shipping-service-ecommerce.apps-crc.testing}
+          uri: ${SHIPPING_SERVICE_URL:http://shipping-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/shipments/**
 
         - id: notification
-          uri: ${NOTIFICATION_SERVICE_URL:https://notification-service-ecommerce.apps-crc.testing}
+          uri: ${NOTIFICATION_SERVICE_URL:http://notification-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
             - Path=/api/notifications/**
 
