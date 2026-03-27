@@ -29,6 +29,12 @@ ingress:
     enabled: true
     secretName: wildcard-apps-tls
 
+networkPolicy:
+  enabled: true
+  allowSameNamespace: true
+  allowIngressController: true
+  ingressControllerNamespace: ingress-nginx
+
 env:
   SERVER_PORT: "8443"
   SERVER_SSL_ENABLED: "false"
