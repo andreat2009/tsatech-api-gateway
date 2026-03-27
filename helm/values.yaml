@@ -10,7 +10,7 @@ service:
 
 route:
   enabled: true
-  host: "api-gateway-ecommerce.apps-crc.testing"
+  host: "api-gateway-ecommerce.apps.example.invalid"
   tls:
     termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
@@ -19,23 +19,23 @@ route:
 env:
   SERVER_PORT: "8443"
   SERVER_SSL_ENABLED: "true"
-  KEYCLOAK_ISSUER_URI: "https://keycloak-platform.apps-crc.testing/realms/master"
+  KEYCLOAK_ISSUER_URI: "https://keycloak-platform.apps.example.invalid/realms/master"
   GATEWAY_SSL_TRUSTSTORE: "/etc/ssl/openshift/truststore.jks"
   GATEWAY_SSL_TRUSTSTORE_PASSWORD: "changeit"
   GATEWAY_SSL_TRUSTSTORE_TYPE: "JKS"
-  REVIEW_SERVICE_URL: "https://review-service-ecommerce.apps-crc.testing"
-  CATALOG_SERVICE_URL: "https://catalog-service-ecommerce.apps-crc.testing"
-  WISHLIST_SERVICE_URL: "https://wishlist-service-ecommerce.apps-crc.testing"
-  CUSTOMER_SERVICE_URL: "https://customer-service-ecommerce.apps-crc.testing"
-  CART_SERVICE_URL: "https://cart-service-ecommerce.apps-crc.testing"
-  RETURNS_SERVICE_URL: "https://returns-service-ecommerce.apps-crc.testing"
-  ORDER_SERVICE_URL: "https://order-service-ecommerce.apps-crc.testing"
-  INVENTORY_SERVICE_URL: "https://inventory-service-ecommerce.apps-crc.testing"
-  COUPON_SERVICE_URL: "https://coupon-service-ecommerce.apps-crc.testing"
-  PRICING_SERVICE_URL: "https://pricing-service-ecommerce.apps-crc.testing"
-  PAYMENT_SERVICE_URL: "https://payment-service-ecommerce.apps-crc.testing"
-  SHIPPING_SERVICE_URL: "https://shipping-service-ecommerce.apps-crc.testing"
-  NOTIFICATION_SERVICE_URL: "https://notification-service-ecommerce.apps-crc.testing"
+  REVIEW_SERVICE_URL: "http://review-service.ecommerce.svc.cluster.local:8443"
+  CATALOG_SERVICE_URL: "http://catalog-service.ecommerce.svc.cluster.local:8443"
+  WISHLIST_SERVICE_URL: "http://wishlist-service.ecommerce.svc.cluster.local:8443"
+  CUSTOMER_SERVICE_URL: "http://customer-service.ecommerce.svc.cluster.local:8443"
+  CART_SERVICE_URL: "http://cart-service.ecommerce.svc.cluster.local:8443"
+  RETURNS_SERVICE_URL: "http://returns-service.ecommerce.svc.cluster.local:8443"
+  ORDER_SERVICE_URL: "http://order-service.ecommerce.svc.cluster.local:8443"
+  INVENTORY_SERVICE_URL: "http://inventory-service.ecommerce.svc.cluster.local:8443"
+  COUPON_SERVICE_URL: "http://coupon-service.ecommerce.svc.cluster.local:8443"
+  PRICING_SERVICE_URL: "http://pricing-service.ecommerce.svc.cluster.local:8443"
+  PAYMENT_SERVICE_URL: "http://payment-service.ecommerce.svc.cluster.local:8443"
+  SHIPPING_SERVICE_URL: "http://shipping-service.ecommerce.svc.cluster.local:8443"
+  NOTIFICATION_SERVICE_URL: "http://notification-service.ecommerce.svc.cluster.local:8443"
 
 secret:
   name: "api-gateway-secret"
