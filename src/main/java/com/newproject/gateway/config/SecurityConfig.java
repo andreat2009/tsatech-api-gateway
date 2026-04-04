@@ -59,11 +59,15 @@ public class SecurityConfig {
                 // guest checkout public flow
                 .pathMatchers(HttpMethod.POST, "/api/customers").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/customers/*/addresses").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/customers/custom-fields", "/api/customers/custom-fields/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/pricing/quote").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/orders/*/items").permitAll()
                 .pathMatchers(HttpMethod.PUT, "/api/orders/*").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/payments/methods").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/payments").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/payments/*/capture/paypal", "/api/payments/*/complete/fabrick").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/payments/webhooks/paypal", "/api/payments/webhooks/fabrick").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/shipments").permitAll()
 
                 .pathMatchers(HttpMethod.POST, "/api/notifications/order-confirmation").permitAll()
