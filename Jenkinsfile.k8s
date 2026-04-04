@@ -20,7 +20,7 @@ spec:
     command: ['cat']
     tty: true
   - name: tools
-    image: alpine:3.22
+    image: dtzar/helm-kubectl:3.17
     command: ['sh', '-c', 'cat']
     tty: true
   - name: kaniko
@@ -82,36 +82,13 @@ set -eu
                 container('tools') {
                     sh '''#!/bin/sh
 set -eu
-apk add --no-cache curl tar gzip ca-certificates >/dev/null
-TOOLS_DIR="$WORKSPACE/.tools"
-mkdir -p "$TOOLS_DIR"
-ARCH="$(uname -m)"
-case "$ARCH" in
-  x86_64|amd64) K8S_ARCH=amd64 ;;
-  aarch64|arm64) K8S_ARCH=arm64 ;;
-  *) echo "Unsupported architecture: $ARCH" >&2; exit 1 ;;
-esac
-if [ ! -x "$TOOLS_DIR/kubectl" ] || [ ! -f "$TOOLS_DIR/.arch" ] || [ "$(cat "$TOOLS_DIR/.arch" 2>/dev/null)" != "$K8S_ARCH" ]; then
-  rm -f "$TOOLS_DIR/kubectl"
-  curl -fsSL -o "$TOOLS_DIR/kubectl" "https://dl.k8s.io/release/v1.32.2/bin/linux/${K8S_ARCH}/kubectl"
-  chmod +x "$TOOLS_DIR/kubectl"
-fi
-if [ ! -x "$TOOLS_DIR/helm" ] || [ ! -f "$TOOLS_DIR/.arch" ] || [ "$(cat "$TOOLS_DIR/.arch" 2>/dev/null)" != "$K8S_ARCH" ]; then
-  rm -f "$TOOLS_DIR/helm" "$TOOLS_DIR/helm.tgz"
-  rm -rf "$TOOLS_DIR/linux-amd64" "$TOOLS_DIR/linux-arm64"
-  curl -fsSL -o "$TOOLS_DIR/helm.tgz" "https://get.helm.sh/helm-v3.17.1-linux-${K8S_ARCH}.tar.gz"
-  tar -xzf "$TOOLS_DIR/helm.tgz" -C "$TOOLS_DIR"
-  mv "$TOOLS_DIR/linux-${K8S_ARCH}/helm" "$TOOLS_DIR/helm"
-  chmod +x "$TOOLS_DIR/helm"
-fi
-printf '%s' "$K8S_ARCH" > "$TOOLS_DIR/.arch"
-IMAGE_DIGEST=""
 [ -n "${DOMAIN}" ] || { echo "DOMAIN parameter is required" >&2; exit 1; }
+IMAGE_DIGEST=""
 if [ -f "$WORKSPACE/.image-digest" ]; then
   IMAGE_DIGEST="$(tr -d '\r\n' < "$WORKSPACE/.image-digest")"
 fi
-"$TOOLS_DIR/helm" lint "${CHART_PATH}" -f "${CHART_PATH}/values-k8s.yaml"
-"$TOOLS_DIR/helm" upgrade --install "${HELM_RELEASE}" "${CHART_PATH}" \
+helm lint "${CHART_PATH}" -f "${CHART_PATH}/values-k8s.yaml"
+helm upgrade --install "${HELM_RELEASE}" "${CHART_PATH}" \
   -n "${K8S_NAMESPACE}" \
   -f "${CHART_PATH}/values-k8s.yaml" \
   --set-string global.domain="${DOMAIN}" \
@@ -154,22 +131,7 @@ fi
                 container('tools') {
                     sh '''#!/bin/sh
 set -eu
-apk add --no-cache curl >/dev/null
-TOOLS_DIR="$WORKSPACE/.tools"
-mkdir -p "$TOOLS_DIR"
-ARCH="$(uname -m)"
-case "$ARCH" in
-  x86_64|amd64) K8S_ARCH=amd64 ;;
-  aarch64|arm64) K8S_ARCH=arm64 ;;
-  *) echo "Unsupported architecture: $ARCH" >&2; exit 1 ;;
-esac
-if [ ! -x "$TOOLS_DIR/kubectl" ] || [ ! -f "$TOOLS_DIR/.arch" ] || [ "$(cat "$TOOLS_DIR/.arch" 2>/dev/null)" != "$K8S_ARCH" ]; then
-  rm -f "$TOOLS_DIR/kubectl"
-  curl -fsSL -o "$TOOLS_DIR/kubectl" "https://dl.k8s.io/release/v1.32.2/bin/linux/${K8S_ARCH}/kubectl"
-  chmod +x "$TOOLS_DIR/kubectl"
-fi
-printf '%s' "$K8S_ARCH" > "$TOOLS_DIR/.arch"
-"$TOOLS_DIR/kubectl" -n "${K8S_NAMESPACE}" rollout status deployment/${APP_NAME} --timeout=15m
+kubectl -n "${K8S_NAMESPACE}" rollout status deployment/${APP_NAME} --timeout=15m
 '''
                 }
             }
