@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.POST, "/api/orders/*/items").permitAll()
                 .pathMatchers(HttpMethod.PUT, "/api/orders/*").permitAll()
                 .pathMatchers(HttpMethod.GET, "/api/payments/methods").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/inventory/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/payments").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/payments/*/capture/paypal", "/api/payments/*/complete/fabrick").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/payments/webhooks/paypal", "/api/payments/webhooks/fabrick").permitAll()
