@@ -42,11 +42,17 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.POST, "/api/cms/analytics/events").permitAll()
 
                 // CMS / BLOG / CONTACT admin endpoints
+                .pathMatchers(HttpMethod.POST, "/api/cms/admin-audit", "/api/cms/admin-audit/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/api/cms/information", "/api/cms/information/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/api/cms/information/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/api/cms/information/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.GET, "/api/cms/settings", "/api/cms/settings/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/cms/admin-audit", "/api/cms/admin-audit/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/api/cms/settings", "/api/cms/settings/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/cms/integrations", "/api/cms/integrations/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST, "/api/cms/integrations", "/api/cms/integrations/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PUT, "/api/cms/integrations/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.DELETE, "/api/cms/integrations/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/api/cms/blog/posts", "/api/cms/blog/posts/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/api/cms/blog/posts/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/api/cms/blog/posts/**").hasRole("ADMIN")
