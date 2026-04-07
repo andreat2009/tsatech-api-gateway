@@ -66,7 +66,7 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.POST, "/api/customers").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/customers/*/addresses").permitAll()
                 .pathMatchers(HttpMethod.GET, "/api/customers/custom-fields", "/api/customers/custom-fields/**").permitAll()
-                .pathMatchers(HttpMethod.POST, "/api/pricing/quote").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/pricing/quote", "/api/pricing/resolve").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/orders/*/items").permitAll()
                 .pathMatchers(HttpMethod.PUT, "/api/orders/*").permitAll()
