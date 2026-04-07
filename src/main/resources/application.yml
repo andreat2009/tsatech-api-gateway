@@ -77,7 +77,7 @@ spring:
         - id: cms
           uri: ${CMS_SERVICE_URL:http://cms-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
           predicates:
-            - Path=/api/cms/information,/api/cms/information/**,/api/cms/settings,/api/cms/settings/**,/api/cms/analytics,/api/cms/analytics/**
+            - Path=/api/cms/information,/api/cms/information/**,/api/cms/settings,/api/cms/settings/**,/api/cms/analytics,/api/cms/analytics/**,/api/cms/integrations,/api/cms/integrations/**
 
         - id: blog
           uri: ${BLOG_SERVICE_URL:http://blog-service.${APP_NAMESPACE:ecommerce}.svc.cluster.local:8443}
