@@ -89,6 +89,28 @@ public class SecurityConfig {
                 .pathMatchers("/api/customers/*/subscriptions", "/api/customers/*/subscriptions/**").authenticated()
                 .pathMatchers("/api/customers/*/downloads", "/api/customers/*/downloads/**").authenticated()
 
+                // pricing & coupons (pricing-service + coupon-service condividono /api/pricing).
+                // quote/resolve restano pubblici per il checkout; lettura/scrittura listini, regole
+                // e coupon sono operazioni amministrative -> solo ADMIN (chiusura price/coupon tampering).
+                .pathMatchers(HttpMethod.POST, "/api/pricing/quote", "/api/pricing/resolve").permitAll()
+                .pathMatchers(HttpMethod.GET, "/api/pricing", "/api/pricing/rules/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/pricing/coupons", "/api/pricing/coupons/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST, "/api/pricing", "/api/pricing/coupons", "/api/pricing/coupons/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PUT, "/api/pricing/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.DELETE, "/api/pricing/**").hasRole("ADMIN")
+
+                // payments: solo i flussi di checkout (create/capture/complete/webhooks/methods)
+                // sono gia' permitAll sopra. Tutto cio' che muove denaro o stato finanziario
+                // (refund/reconcile/update/delete), la config provider e la lettura dei pagamenti
+                // sono ADMIN-only (chiusura refund abuse + IDOR pagamenti).
+                .pathMatchers("/api/payments/admin/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST, "/api/payments/*/refund", "/api/payments/*/reconcile").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PUT, "/api/payments/*").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.DELETE, "/api/payments/*").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/payments").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/payments/*/transactions").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/payments/*").hasRole("ADMIN")
+
                 .pathMatchers("/api/**").authenticated()
                 .anyExchange().authenticated()
             )
