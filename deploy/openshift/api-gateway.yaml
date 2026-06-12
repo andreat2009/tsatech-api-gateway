@@ -10,7 +10,7 @@ metadata:
     description: API Gateway configuration
 
 data:
-  KEYCLOAK_ISSUER_URI: https://keycloak-platform.apps-crc.testing/realms/master
+  KEYCLOAK_ISSUER_URI: https://keycloak-platform.apps-crc.testing/realms/ecommerce
   GATEWAY_SSL_TRUSTSTORE: /etc/ssl/openshift/truststore.jks
   GATEWAY_SSL_TRUSTSTORE_PASSWORD: changeit
   GATEWAY_SSL_TRUSTSTORE_TYPE: JKS

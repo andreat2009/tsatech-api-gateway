@@ -83,6 +83,13 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.GET, "/api/notifications/ping").permitAll()
 
                 // customer extras (dedicated microservices)
+                // SECURITY (H1/H2/H3): le scritture che emettono valore o entitlement
+                // (punti fedelta', store credit, download digitali) sono ADMIN-only. La lettura
+                // resta authenticated e viene ristretta all'owner a livello di servizio.
+                // I match piu' specifici (POST) precedono i generici authenticated().
+                .pathMatchers(HttpMethod.POST, "/api/customers/*/rewards/transactions").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST, "/api/customers/*/transactions").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST, "/api/customers/*/downloads").hasRole("ADMIN")
                 .pathMatchers("/api/customers/*/newsletter", "/api/customers/*/newsletter/**").authenticated()
                 .pathMatchers("/api/customers/*/rewards", "/api/customers/*/rewards/**").authenticated()
                 .pathMatchers("/api/customers/*/transactions", "/api/customers/*/transactions/**").authenticated()

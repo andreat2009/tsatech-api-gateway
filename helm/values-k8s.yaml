@@ -38,8 +38,8 @@ networkPolicy:
 env:
   SERVER_PORT: "8443"
   SERVER_SSL_ENABLED: "false"
-  KEYCLOAK_ISSUER_URI: '{{ printf "https://keycloak-%s.%s/realms/master" .Values.global.platformNamespace .Values.global.domain }}'
-  KEYCLOAK_JWK_SET_URI: '{{ printf "http://keycloak.%s.svc.cluster.local/realms/master/protocol/openid-connect/certs" .Values.global.platformNamespace }}'
+  KEYCLOAK_ISSUER_URI: '{{ printf "https://keycloak-%s.%s/realms/ecommerce" .Values.global.platformNamespace .Values.global.domain }}'
+  KEYCLOAK_JWK_SET_URI: '{{ printf "http://keycloak.%s.svc.cluster.local/realms/ecommerce/protocol/openid-connect/certs" .Values.global.platformNamespace }}'
   REVIEW_SERVICE_URL: '{{ printf "http://review-service.%s.svc.cluster.local:8443" .Values.global.appNamespace }}'
   WISHLIST_SERVICE_URL: '{{ printf "http://wishlist-service.%s.svc.cluster.local:8443" .Values.global.appNamespace }}'
   RETURNS_SERVICE_URL: '{{ printf "http://returns-service.%s.svc.cluster.local:8443" .Values.global.appNamespace }}'
